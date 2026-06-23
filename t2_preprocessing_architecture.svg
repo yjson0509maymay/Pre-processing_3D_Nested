@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <style>
+      .title{font:700 44px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#294f40}
+      .group{font:700 27px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#fff}
+      .col{font:700 20px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#14251e}
+      .row{font:700 20px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#1d3028}
+      .body{font:16px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#202722}
+      .small{font:14px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#3e4a44}
+      .metric{font:700 19px 'Malgun Gothic','Noto Sans KR',sans-serif;fill:#294f40}
+      .tech{font:15px Consolas,'Malgun Gothic',sans-serif;fill:#293630}
+      .arrow{stroke:#3f7d63;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+      .line{stroke:#27362f;stroke-width:1}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#3f7d63"/></marker>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8fbf9"/><stop offset="1" stop-color="#eef4f0"/></linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f7f6f4"/>
+  <text x="38" y="56" class="title">T.3 아키텍처</text>
+  <line x1="38" y1="76" x2="1562" y2="76" stroke="#2d3632" stroke-width="2"/>
+
+  <!-- group headers -->
+  <rect x="24" y="104" width="72" height="58" fill="#3e7b61"/>
+  <rect x="96" y="104" width="240" height="58" fill="#3e7b61"/>
+  <rect x="336" y="104" width="1010" height="58" fill="#3e7b61"/>
+  <rect x="1346" y="104" width="230" height="58" fill="#3e7b61"/>
+  <text x="216" y="142" text-anchor="middle" class="group">데이터 구성</text>
+  <text x="841" y="142" text-anchor="middle" class="group">T2 MRI 전처리 파이프라인</text>
+  <text x="1461" y="142" text-anchor="middle" class="group">산출물 및 QC</text>
+
+  <!-- column headers -->
+  <g fill="#c9d9cd" stroke="#27362f">
+    <rect x="24" y="162" width="72" height="46"/><rect x="96" y="162" width="240" height="46"/>
+    <rect x="336" y="162" width="202" height="46"/><rect x="538" y="162" width="202" height="46"/>
+    <rect x="740" y="162" width="202" height="46"/><rect x="942" y="162" width="202" height="46"/>
+    <rect x="1144" y="162" width="202" height="46"/><rect x="1346" y="162" width="230" height="46"/>
+  </g>
+  <text x="216" y="193" text-anchor="middle" class="col">코호트 선정</text>
+  <text x="437" y="193" text-anchor="middle" class="col">DICOM → NIfTI</text>
+  <text x="639" y="193" text-anchor="middle" class="col">뇌 추출 (BET)</text>
+  <text x="841" y="193" text-anchor="middle" class="col">N4 보정</text>
+  <text x="1043" y="193" text-anchor="middle" class="col">MNI152 정합</text>
+  <text x="1245" y="193" text-anchor="middle" class="col">정규화 · 리사이즈</text>
+  <text x="1461" y="193" text-anchor="middle" class="col">로그 · 시각화</text>
+
+  <!-- row backgrounds and labels -->
+  <g stroke="#27362f">
+    <rect x="24" y="208" width="72" height="252" fill="#d9d9d9"/><rect x="96" y="208" width="1480" height="252" fill="#fff"/>
+    <rect x="24" y="460" width="72" height="238" fill="#d9d9d9"/><rect x="96" y="460" width="1480" height="238" fill="#fff"/>
+    <rect x="24" y="698" width="72" height="174" fill="#d9d9d9"/><rect x="96" y="698" width="1480" height="174" fill="#fff"/>
+  </g>
+  <text x="60" y="342" text-anchor="middle" class="row">결과</text>
+  <text x="60" y="586" text-anchor="middle" class="row">서비스</text>
+  <text x="60" y="791" text-anchor="middle" class="row">기술</text>
+
+  <!-- vertical grid -->
+  <g class="line"><line x1="336" y1="208" x2="336" y2="872"/><line x1="538" y1="208" x2="538" y2="872"/>
+    <line x1="740" y1="208" x2="740" y2="872"/><line x1="942" y1="208" x2="942" y2="872"/>
+    <line x1="1144" y1="208" x2="1144" y2="872"/><line x1="1346" y1="208" x2="1346" y2="872"/>
+  </g>
+
+  <!-- result row: cohort -->
+  <rect x="114" y="225" width="204" height="148" rx="8" fill="url(#card)" stroke="#aac0b2"/>
+  <text x="216" y="251" text-anchor="middle" class="metric">최종 303명 / 303영상</text>
+  <text x="126" y="283" class="small">Control</text><rect x="199" y="270" width="92" height="16" rx="3" fill="#4e8e72"/><text x="298" y="284" class="small">110</text>
+  <text x="126" y="317" class="small">Prodromal</text><rect x="199" y="304" width="49" height="16" rx="3" fill="#8fba9f"/><text x="255" y="318" class="small">58</text>
+  <text x="126" y="351" class="small">PD</text><rect x="199" y="338" width="113" height="16" rx="3" fill="#2f684f"/><text x="298" y="352" class="small">135</text>
+  <text x="216" y="404" text-anchor="middle" class="small">피험자당 대표 T2 영상 1개</text>
+  <text x="216" y="427" text-anchor="middle" class="small">MRI · Original · FLAIR 제외</text>
+
+  <!-- result row: pipeline cards -->
+  <g>
+    <rect x="356" y="232" width="162" height="146" rx="10" fill="#edf3ef" stroke="#9cb5a6"/>
+    <path d="M386 266 h72 l28 28 v55 h-100z" fill="#fff" stroke="#4d7664" stroke-width="2"/><path d="M458 266 v29 h28" fill="none" stroke="#4d7664" stroke-width="2"/>
+    <text x="437" y="405" text-anchor="middle" class="metric">3D NIfTI</text><text x="437" y="430" text-anchor="middle" class="small">재지향 · Echo 선택</text>
+
+    <rect x="558" y="232" width="162" height="146" rx="10" fill="#edf3ef" stroke="#9cb5a6"/>
+    <ellipse cx="639" cy="301" rx="47" ry="57" fill="#2f3432"/><ellipse cx="639" cy="302" rx="32" ry="45" fill="#cbd3cf"/><path d="M639 257 v90 M615 275 Q639 288 663 275 M612 318 Q639 304 666 318" stroke="#fff" fill="none" opacity=".65"/>
+    <text x="639" y="405" text-anchor="middle" class="metric">비뇌 조직 제거</text><text x="639" y="430" text-anchor="middle" class="small">두개골 제거 영상</text>
+
+    <rect x="760" y="232" width="162" height="146" rx="10" fill="#edf3ef" stroke="#9cb5a6"/>
+    <circle cx="818" cy="300" r="42" fill="#707875"/><circle cx="864" cy="300" r="42" fill="#b8c5be"/>
+    <path d="M841 255 v90" stroke="#3e7b61" stroke-width="3" stroke-dasharray="5 4"/>
+    <text x="841" y="405" text-anchor="middle" class="metric">Bias field 보정</text><text x="841" y="430" text-anchor="middle" class="small">명암 불균일 완화</text>
+
+    <rect x="962" y="232" width="162" height="146" rx="10" fill="#edf3ef" stroke="#9cb5a6"/>
+    <g stroke="#a8b8b0" stroke-width="1"><path d="M990 257v96M1010 257v96M1030 257v96M1050 257v96M1070 257v96M1090 257v96"/><path d="M982 267h118M982 287h118M982 307h118M982 327h118M982 347h118"/></g>
+    <ellipse cx="1041" cy="305" rx="38" ry="47" fill="#47755f" opacity=".8"/>
+    <text x="1043" y="405" text-anchor="middle" class="metric">표준 공간 정렬</text><text x="1043" y="430" text-anchor="middle" class="small">12-DOF 선형 정합</text>
+
+    <rect x="1164" y="232" width="162" height="146" rx="10" fill="#edf3ef" stroke="#9cb5a6"/>
+    <path d="M1183 342 C1200 330 1204 283 1221 300 S1242 343 1256 286 S1280 327 1308 266" fill="none" stroke="#3e7b61" stroke-width="4"/>
+    <rect x="1194" y="264" width="101" height="90" fill="none" stroke="#b3c1ba"/>
+    <text x="1245" y="405" text-anchor="middle" class="metric">56 × 56 × 56</text><text x="1245" y="430" text-anchor="middle" class="small">z-score · clip [-5, 5]</text>
+
+    <rect x="1366" y="232" width="190" height="146" rx="10" fill="#26332d"/>
+    <text x="1381" y="260" class="tech" fill="#d6e6dc">[303/303] complete</text><text x="1381" y="289" class="tech" fill="#d6e6dc">status: ok / failed</text>
+    <text x="1381" y="318" class="tech" fill="#d6e6dc">timing: stage/sec</text><text x="1381" y="347" class="tech" fill="#d6e6dc">QC: 3-plane montage</text>
+    <text x="1461" y="405" text-anchor="middle" class="metric">추적 가능한 산출물</text><text x="1461" y="430" text-anchor="middle" class="small">단계별 NIfTI · CSV 로그</text>
+  </g>
+
+  <!-- arrows -->
+  <g class="arrow" marker-end="url(#arrow)"><path d="M318 305h30"/><path d="M518 305h32"/><path d="M720 305h32"/><path d="M922 305h32"/><path d="M1124 305h32"/><path d="M1326 305h32"/></g>
+
+  <!-- service row -->
+  <g class="body">
+    <text x="114" y="491"><tspan font-weight="700">1. 선정 기준</tspan><tspan x="126" dy="27">• Modality = MRI, Type = Original</tspan><tspan x="126" dy="25">• T2 / PD-T2 / dual TSE 계열</tspan><tspan x="126" dy="25">• FLAIR, T2*, REPEAT, MPR 제외</tspan><tspan x="114" dy="34" font-weight="700">2. 중복 제어</tspan><tspan x="126" dy="27">• Subject·Image ID 중복 검증</tspan><tspan x="126" dy="25">• BL 및 표준 촬영 우선</tspan></text>
+    <text x="354" y="491"><tspan font-weight="700">원천 영상 변환</tspan><tspan x="354" dy="31">• DICOM 폴더 인벤토리</tspan><tspan x="354" dy="26">• 다중 Echo 시 최대 TE 선택</tspan><tspan x="354" dy="26">• 4D 결과는 마지막 볼륨 사용</tspan><tspan x="354" dy="26">• 최대 3D 볼륨 채택</tspan></text>
+    <text x="556" y="491"><tspan font-weight="700">Brain extraction</tspan><tspan x="556" dy="31">• 뇌 실질 영역 분리</tspan><tspan x="556" dy="26">• 배경·두개골 제거</tspan><tspan x="556" dy="26">• 다음 단계 입력 생성</tspan></text>
+    <text x="758" y="491"><tspan font-weight="700">Intensity correction</tspan><tspan x="758" dy="31">• 저주파 편향장 추정</tspan><tspan x="758" dy="26">• 공간적 명암 편차 보정</tspan><tspan x="758" dy="26">• 조직 대비 안정화</tspan></text>
+    <text x="960" y="491"><tspan font-weight="700">Spatial registration</tspan><tspan x="960" dy="31">• MNI152 1 mm template</tspan><tspan x="960" dy="26">• 12 자유도 affine 정합</tspan><tspan x="960" dy="26">• 피험자 간 공간 표준화</tspan></text>
+    <text x="1162" y="491"><tspan font-weight="700">Model-ready volume</tspan><tspan x="1162" dy="31">• 비영점 voxel z-score</tspan><tspan x="1162" dy="26">• 범위 [-5, 5] clipping</tspan><tspan x="1162" dy="26">• 56³ voxel 크기 통일</tspan></text>
+    <text x="1364" y="491"><tspan font-weight="700">품질·실행 관리</tspan><tspan x="1364" dy="31">• 샘플별 성공/실패 기록</tspan><tspan x="1364" dy="26">• 단계별·전체 처리시간</tspan><tspan x="1364" dy="26">• 시상/관상/축상면 시각화</tspan><tspan x="1364" dy="26">• Before/After 및 전체 파이프라인</tspan></text>
+  </g>
+
+  <!-- technology row -->
+  <g class="body">
+    <text x="114" y="730"><tspan font-weight="700">데이터/검증</tspan><tspan x="114" dy="31">Python · CSV · XLSX</tspan><tspan x="114" dy="27">메타데이터 교차검증</tspan><tspan x="114" dy="27">Control=0 · Prodromal=1 · PD=2</tspan></text>
+    <text x="354" y="730"><tspan font-weight="700">dicom2nifti</tspan><tspan x="354" dy="31">pydicom · nibabel</tspan><tspan x="354" dy="27">reorient · gzip NIfTI</tspan></text>
+    <text x="556" y="730"><tspan font-weight="700">FSL BET</tspan><tspan x="556" dy="31">Skull stripping</tspan><tspan x="556" dy="27">WSL / Linux</tspan></text>
+    <text x="758" y="730"><tspan font-weight="700">ANTs N4</tspan><tspan x="758" dy="31">N4BiasFieldCorrection</tspan><tspan x="758" dy="27">Bias correction</tspan></text>
+    <text x="960" y="730"><tspan font-weight="700">FSL FLIRT</tspan><tspan x="960" dy="31">MNI152_T1_1mm_brain</tspan><tspan x="960" dy="27">12-DOF affine</tspan></text>
+    <text x="1162" y="730"><tspan font-weight="700">NumPy · nibabel</tspan><tspan x="1162" dy="31">z-score normalization</tspan><tspan x="1162" dy="27">3D resize (56³)</tspan></text>
+    <text x="1364" y="730"><tspan font-weight="700">병렬 처리 및 QC</tspan><tspan x="1364" dy="31">ProcessPoolExecutor (4 workers)</tspan><tspan x="1364" dy="27">Matplotlib · preprocessing_log.csv</tspan><tspan x="1364" dy="27">단계 폴더 01–06 · 재시작 지원</tspan></text>
+  </g>
+
+  <text x="1560" y="893" text-anchor="end" class="small">PPMI T2 MRI · 303 unique subjects · Paper-aligned preprocessing</text>
+</svg>

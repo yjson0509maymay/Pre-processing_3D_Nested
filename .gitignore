@@ -1,0 +1,19 @@
+node_modules/
+outputs/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environments
+.env
+.venv/
+venv/
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+
+# Office temporary lock files
+~$*
