@@ -215,6 +215,22 @@ def process_sample(row, config):
     return result
 
 
+def format_stage_timings(result):
+    parts = []
+    for key in [
+        "01_seconds",
+        "02_seconds",
+        "03_seconds",
+        "04_seconds",
+        "05_seconds",
+        "06_seconds",
+        "07_seconds",
+    ]:
+        if key in result and result[key] != "":
+            parts.append(f"{key[:2]}={result[key]}s")
+    return ", ".join(parts) if parts else "all stages skipped"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Staged paper-aligned T2 preprocessing.")
     parser.add_argument("--data-csv", required=True)
@@ -242,9 +258,10 @@ def main():
         for index, future in enumerate(as_completed(futures), start=1):
             result = future.result()
             results.append(result)
+            stage_timings = format_stage_timings(result)
             print(
                 f"[{index}/{len(rows)}] {result['sample_id']} - {result['status']} "
-                f"({result['total_seconds']}s)",
+                f"total={result['total_seconds']}s | {stage_timings}",
                 flush=True,
             )
             fields = sorted({key for item in results for key in item})

@@ -72,6 +72,12 @@ def make_loader(dataset: NiftiDataset, batch_size: int, workers: int, shuffle: b
     )
 
 
+def elapsed_since(started: float, device: torch.device | None = None) -> float:
+    if device is not None and device.type == "cuda":
+        torch.cuda.synchronize(device)
+    return time.perf_counter() - started
+
+
 def classification_metrics(y_true: list[int], y_pred: list[int]) -> dict[str, object]:
     labels = [0, 1, 2]
     cm = confusion_matrix(y_true, y_pred, labels=labels)
@@ -187,10 +193,12 @@ def main() -> None:
     history = []
     best_score = -np.inf
     stale_epochs = 0
-    started = time.time()
+    started = time.perf_counter()
     for epoch in range(1, args.epochs + 1):
+        epoch_started = time.perf_counter()
         model.train()
         running_loss = 0.0
+        train_started = time.perf_counter()
         for batch in train_loader:
             images = batch["image"].to(device, non_blocking=True)
             labels = batch["label"].to(device, non_blocking=True)
@@ -202,8 +210,13 @@ def main() -> None:
             scaler.step(optimizer)
             scaler.update()
             running_loss += float(loss.item()) * labels.size(0)
+        train_seconds = elapsed_since(train_started, device)
 
+        val_started = time.perf_counter()
         val_metrics, _ = evaluate(model, val_loader, criterion, device)
+        val_seconds = elapsed_since(val_started, device)
+
+        bookkeeping_started = time.perf_counter()
         scheduler.step(val_metrics["macro_f1"])
         row = {
             "epoch": epoch,
@@ -213,14 +226,15 @@ def main() -> None:
             "val_balanced_accuracy": val_metrics["balanced_accuracy"],
             "val_macro_f1": val_metrics["macro_f1"],
             "learning_rate": optimizer.param_groups[0]["lr"],
+            "train_seconds": round(train_seconds, 3),
+            "validation_seconds": round(val_seconds, 3),
         }
-        history.append(row)
-        pd.DataFrame(history).to_csv(args.output_dir / "history.csv", index=False)
-        print(json.dumps(row))
+        checkpoint_started = None
 
         if val_metrics["macro_f1"] > best_score + 1e-6:
             best_score = val_metrics["macro_f1"]
             stale_epochs = 0
+            checkpoint_started = time.perf_counter()
             torch.save({
                 "model_name": args.model,
                 "state_dict": model.state_dict(),
@@ -228,20 +242,42 @@ def main() -> None:
                 "val_metrics": val_metrics,
                 "seed": args.seed,
             }, args.output_dir / "best.pt")
+            row["checkpoint_seconds"] = round(elapsed_since(checkpoint_started, device), 3)
         else:
             stale_epochs += 1
-            if stale_epochs >= args.patience:
-                break
+            row["checkpoint_seconds"] = 0.0
+
+        row["bookkeeping_seconds"] = round(elapsed_since(bookkeeping_started, device), 3)
+        row["epoch_total_seconds"] = round(elapsed_since(epoch_started, device), 3)
+        row["process_seconds"] = {
+            "train": row["train_seconds"],
+            "validation": row["validation_seconds"],
+            "bookkeeping": row["bookkeeping_seconds"],
+            "checkpoint": row["checkpoint_seconds"],
+            "epoch_total": row["epoch_total_seconds"],
+        }
+        history.append(row)
+        pd.DataFrame(history).to_csv(args.output_dir / "history.csv", index=False)
+        print(json.dumps(row), flush=True)
+
+        if stale_epochs >= args.patience:
+            break
 
     checkpoint = torch.load(args.output_dir / "best.pt", map_location=device, weights_only=False)
     model.load_state_dict(checkpoint["state_dict"])
+    final_eval_started = time.perf_counter()
     val_metrics, val_predictions = evaluate(model, val_loader, criterion, device)
+    final_val_seconds = elapsed_since(final_eval_started, device)
+    test_eval_started = time.perf_counter()
     test_metrics, test_predictions = evaluate(model, test_loader, criterion, device)
+    final_test_seconds = elapsed_since(test_eval_started, device)
     final = {
         "best_epoch": checkpoint["epoch"],
         "validation": val_metrics,
         "test": test_metrics,
-        "elapsed_seconds": time.time() - started,
+        "final_validation_seconds": round(final_val_seconds, 3),
+        "final_test_seconds": round(final_test_seconds, 3),
+        "elapsed_seconds": round(elapsed_since(started, device), 3),
         "test_used_for_selection": False,
     }
     (args.output_dir / "metrics.json").write_text(
@@ -255,4 +291,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
