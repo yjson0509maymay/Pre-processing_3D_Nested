@@ -3,14 +3,15 @@
 # External tools still need to be installed separately in WSL/Linux:
 # - FSL: bet, flirt, and MNI152_T1_1mm_brain.nii.gz
 # - ANTs command line tools: N4BiasFieldCorrection
-# - ROBEX: runROBEX.sh, for the optional PD25 Parkinson-specialized branch
 # - PD25 Parkinson template NIfTI, for the optional PD25 branch
 #
 # antspyx provides the additional SyN non-linear registration step.
+# pyrobex provides ROBEX brain extraction for the optional PD25 branch.
 
 antspyx
 dicom2nifti
 nibabel
 numpy
 pydicom
+pyrobex
 scipy

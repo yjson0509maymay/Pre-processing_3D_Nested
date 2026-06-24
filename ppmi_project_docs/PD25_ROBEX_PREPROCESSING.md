@@ -38,13 +38,13 @@ logs
 
 ## Required External Files
 
-This runner does not bundle the PD25 template or ROBEX binaries.
+This runner does not bundle the PD25 template. ROBEX is called through `pyrobex`
+by default, so a separate ROBEX binary path is not required for the default run.
 
 Set these environment variables in WSL before running:
 
 ```bash
 export PD25_TEMPLATE=/mnt/e/ppmi_dti/templates/PD25-T1MPRAGE-1mm-brain.nii.gz
-export ROBEX_COMMAND=/mnt/e/ppmi_dti/tools/ROBEX/runROBEX.sh
 ```
 
 Then run:
@@ -55,6 +55,9 @@ bash pipeline/run_pd25_robex_preprocessing.sh
 ```
 
 The command is resumable by default. Existing stage outputs are skipped unless `--overwrite` is added to the Python command.
+
+If you need to use a standalone ROBEX shell script instead of `pyrobex`, pass
+`--robex-mode command --robex-command /path/to/runROBEX.sh` to the Python runner.
 
 ## Logs
 

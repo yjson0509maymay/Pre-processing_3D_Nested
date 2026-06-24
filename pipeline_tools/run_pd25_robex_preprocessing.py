@@ -167,7 +167,24 @@ def load_nifti(path):
     return img, data
 
 
-def run_robex(input_path, output_path, robex_command):
+def run_pyrobex(input_path, output_path, seed=0):
+    try:
+        from pyrobex.robex import robex
+    except ImportError as exc:
+        raise RuntimeError(
+            "pyrobex is required for ROBEX brain extraction. "
+            "Install it with: pip install pyrobex"
+        ) from exc
+
+    image = nib.load(input_path)
+    stripped, mask = robex(image, seed=seed)
+    mask_path = output_path.replace(".nii.gz", "_mask.nii.gz").replace(".nii", "_mask.nii")
+    nib.save(stripped, output_path)
+    nib.save(mask, mask_path)
+    return output_path
+
+
+def run_robex_command(input_path, output_path, robex_command):
     command = require_command(robex_command)
     mask_path = output_path.replace(".nii.gz", "_mask.nii.gz").replace(".nii", "_mask.nii")
     if command.endswith(".sh"):
@@ -176,6 +193,14 @@ def run_robex(input_path, output_path, robex_command):
         robex_call = [command, input_path, output_path, mask_path]
     run_command(robex_call, "ROBEX brain extraction")
     return output_path
+
+
+def run_robex(input_path, output_path, robex_mode, robex_command, seed=0):
+    if robex_mode == "pyrobex":
+        return run_pyrobex(input_path, output_path, seed=seed)
+    if robex_mode == "command":
+        return run_robex_command(input_path, output_path, robex_command)
+    raise RuntimeError(f"Unsupported ROBEX mode: {robex_mode}")
 
 
 def run_pd25_antspyx_syn(input_path, output_path, pd25_template, transform_type="SyN"):
@@ -274,6 +299,11 @@ def format_stage_timings(result):
     return ", ".join(parts) if parts else "all stages skipped"
 
 
+def stable_numeric_seed(value):
+    digits = re.sub(r"\D", "", str(value))
+    return int(digits) if digits else 0
+
+
 def process_sample(row, config):
     start_total = time.perf_counter()
     sample_id = row["sample_id"]
@@ -308,7 +338,7 @@ def process_sample(row, config):
             result["original_shape"] = "x".join(map(str, image.shape))
 
         operations = [
-            ("02_robex", run_robex, (paths["01_raw_nifti"], paths["02_robex"], config["robex_command"])),
+            ("02_robex", run_robex, (paths["01_raw_nifti"], paths["02_robex"], config["robex_mode"], config["robex_command"], stable_numeric_seed(row["Image Data ID"]))),
             ("03_n4", preparing.run_n4_field_correction, (paths["02_robex"], paths["03_n4"])),
             ("04_pd25_syn", run_pd25_antspyx_syn, (paths["03_n4"], paths["04_pd25_syn"], config["pd25_template"], config["transform_type"])),
             ("05_minmax", normalize_minmax, (paths["04_pd25_syn"], paths["05_minmax"])),
@@ -332,6 +362,7 @@ def parse_args():
     parser.add_argument("--data-csv", required=True)
     parser.add_argument("--output-root", required=True)
     parser.add_argument("--pd25-template", required=True)
+    parser.add_argument("--robex-mode", choices=["pyrobex", "command"], default="pyrobex")
     parser.add_argument("--robex-command", default=os.environ.get("ROBEX_COMMAND", "runROBEX.sh"))
     parser.add_argument("--preparing-path", required=True)
     parser.add_argument("--transform-type", default="SyN")
@@ -348,11 +379,13 @@ def main():
         rows = rows[: args.limit]
     ensure_readmes(args.output_root)
     require_file(args.pd25_template, "PD25 template")
-    require_command(args.robex_command)
+    if args.robex_mode == "command":
+        require_command(args.robex_command)
 
     config = {
         "output_root": args.output_root,
         "pd25_template": args.pd25_template,
+        "robex_mode": args.robex_mode,
         "robex_command": args.robex_command,
         "preparing_path": args.preparing_path,
         "transform_type": args.transform_type,

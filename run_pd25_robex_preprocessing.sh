@@ -15,7 +15,6 @@ export TMP="$ANTS_TMP"
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 
 : "${PD25_TEMPLATE:?Set PD25_TEMPLATE to the PD25 template NIfTI path.}"
-: "${ROBEX_COMMAND:?Set ROBEX_COMMAND to runROBEX.sh or its absolute path.}"
 
 {
   echo "Started: $(date --iso-8601=seconds)"
@@ -23,7 +22,7 @@ export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
     --data-csv /mnt/e/ppmi_dti/raw/data.csv \
     --output-root "$OUTPUT_ROOT" \
     --pd25-template "$PD25_TEMPLATE" \
-    --robex-command "$ROBEX_COMMAND" \
+    --robex-mode pyrobex \
     --preparing-path /mnt/e/ppmi_dti/preparing/preparing.py \
     --workers 2
   echo "Finished: $(date --iso-8601=seconds)"
