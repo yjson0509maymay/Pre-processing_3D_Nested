@@ -10,9 +10,10 @@ STAGES = [
     ("01_raw_nifti", "Raw NIfTI"),
     ("02_bet", "Brain extraction (BET)"),
     ("03_n4", "N4 bias correction"),
-    ("04_mni152", "MNI152 registration"),
-    ("05_normalized", "Intensity normalization"),
-    ("06_resized", "Resize 56 x 56 x 56"),
+    ("04_mni152_affine", "MNI152 affine registration"),
+    ("05_ants_nonlinear", "ANTs SyN non-linear registration"),
+    ("06_normalized", "Intensity normalization"),
+    ("07_resized", "Resize 56 x 56 x 56"),
 ]
 
 
@@ -80,10 +81,10 @@ def save_pipeline(volumes, path):
 def find_sample(output_root, requested):
     if requested:
         return requested
-    final_dir = Path(output_root) / "06_resized"
+    final_dir = Path(output_root) / "07_resized"
     candidates = sorted(final_dir.glob("sub-*.nii.gz"))
     if not candidates:
-        raise RuntimeError("No completed sample found in 06_resized")
+        raise RuntimeError("No completed sample found in 07_resized")
     return candidates[0].name.removesuffix(".nii.gz")
 
 
@@ -118,7 +119,7 @@ def main():
     save_montage(volumes[-1], "Final Preprocessed T2 MRI", output_dir / "final_preprocessed.png")
     save_pipeline(volumes, output_dir / "PPT_full_pipeline_overview.png")
 
-    readme = f"""# Preprocessing visualization - {sample_id}\n\nPurpose: Track one subject through every preprocessing stage.\n\nInput: stage NIfTI files from `01_raw_nifti` through `06_resized`.\n\nOutput: individual before/after montages and PPT-ready comparison figures.\n\n`PPT_full_pipeline_overview.png` is the recommended single-slide overview.\n"""
+    readme = f"""# Preprocessing visualization - {sample_id}\n\nPurpose: Track one subject through every preprocessing stage.\n\nInput: stage NIfTI files from `01_raw_nifti` through `07_resized`.\n\nOutput: individual before/after montages and PPT-ready comparison figures.\n\n`PPT_full_pipeline_overview.png` is the recommended single-slide overview.\n"""
     (output_dir / "README.md").write_text(readme, encoding="utf-8")
     print(f"Visualization sample: {sample_id}")
     print(f"Output: {output_dir}")

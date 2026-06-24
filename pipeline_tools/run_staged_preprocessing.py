@@ -22,9 +22,10 @@ STAGES = [
     ("01_raw_nifti", "DICOM converted to a reoriented 3D NIfTI volume."),
     ("02_bet", "FSL BET brain extraction output."),
     ("03_n4", "ANTs N4 bias-field corrected brain volume."),
-    ("04_mni152", "FSL FLIRT 12-DOF registration to the MNI152 template."),
-    ("05_normalized", "Non-zero brain voxels z-score normalized and clipped to [-5, 5]."),
-    ("06_resized", "Final model input resized to 56 x 56 x 56 voxels."),
+    ("04_mni152_affine", "FSL FLIRT 12-DOF affine registration to the MNI152 template."),
+    ("05_ants_nonlinear", "antspyx SyN non-linear registration in template space."),
+    ("06_normalized", "Non-zero brain voxels z-score normalized and clipped to [-5, 5]."),
+    ("07_resized", "Final model input resized to 56 x 56 x 56 voxels."),
 ]
 
 
@@ -124,7 +125,7 @@ def convert_t2_dicom(dicom_dir, output_path):
 def ensure_readmes(output_root):
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
-    root_text = """# Paper-aligned T2 preprocessing\n\nInput: `E:/ppmi_dti/raw/data.csv` and raw DICOM folders.\n\nPipeline: DICOM to NIfTI, BET, N4, MNI152 registration, intensity normalization, and 56x56x56 resize. Each stage folder is the input to the next stage. FLAIR data is excluded from this cohort.\n"""
+    root_text = """# Paper-aligned T2 preprocessing\n\nInput: `E:/ppmi_dti/raw/data.csv` and raw DICOM folders.\n\nPipeline: DICOM to NIfTI, BET, N4, MNI152 affine registration, antspyx SyN non-linear registration, intensity normalization, and 56x56x56 resize. Each stage folder is the input to the next stage. FLAIR data is excluded from this cohort.\n"""
     (root / "README.md").write_text(root_text, encoding="utf-8")
     for index, (name, description) in enumerate(STAGES):
         folder = root / name
@@ -196,9 +197,10 @@ def process_sample(row, config):
         operations = [
             ("02_bet", preparing.run_skull_stripping_bet, (paths["01_raw_nifti"], paths["02_bet"])),
             ("03_n4", preparing.run_n4_field_correction, (paths["02_bet"], paths["03_n4"])),
-            ("04_mni152", preparing.run_mni_registration_flirt, (paths["03_n4"], paths["04_mni152"], config["mni_template"])),
-            ("05_normalized", preparing.normalize_intensity, (paths["04_mni152"], paths["05_normalized"])),
-            ("06_resized", preparing.resize_nifti, (paths["05_normalized"], paths["06_resized"])),
+            ("04_mni152_affine", preparing.run_mni_registration_flirt, (paths["03_n4"], paths["04_mni152_affine"], config["mni_template"])),
+            ("05_ants_nonlinear", preparing.run_mni_registration_antspyx_nonlinear, (paths["04_mni152_affine"], paths["05_ants_nonlinear"], config["mni_template"])),
+            ("06_normalized", preparing.normalize_intensity, (paths["05_ants_nonlinear"], paths["06_normalized"])),
+            ("07_resized", preparing.resize_nifti, (paths["06_normalized"], paths["07_resized"])),
         ]
         for stage, function, arguments in operations:
             if config["overwrite"] or not os.path.exists(paths[stage]):

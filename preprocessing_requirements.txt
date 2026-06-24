@@ -1,0 +1,14 @@
+# Python packages for the preprocessing pipeline.
+#
+# External tools still need to be installed separately in WSL/Linux:
+# - FSL: bet, flirt, and MNI152_T1_1mm_brain.nii.gz
+# - ANTs command line tools: N4BiasFieldCorrection
+#
+# antspyx provides the additional SyN non-linear registration step.
+
+antspyx
+dicom2nifti
+nibabel
+numpy
+pydicom
+scipy
