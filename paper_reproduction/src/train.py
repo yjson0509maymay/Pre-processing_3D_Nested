@@ -220,6 +220,7 @@ def main() -> None:
         scheduler.step(val_metrics["macro_f1"])
         row = {
             "epoch": epoch,
+            "time_unit": "seconds",
             "train_loss": running_loss / len(train_ds),
             "val_loss": val_metrics["loss"],
             "val_accuracy": val_metrics["accuracy"],
@@ -250,6 +251,7 @@ def main() -> None:
         row["bookkeeping_seconds"] = round(elapsed_since(bookkeeping_started, device), 3)
         row["epoch_total_seconds"] = round(elapsed_since(epoch_started, device), 3)
         row["process_seconds"] = {
+            "unit": "seconds",
             "train": row["train_seconds"],
             "validation": row["validation_seconds"],
             "bookkeeping": row["bookkeeping_seconds"],
@@ -273,6 +275,7 @@ def main() -> None:
     final_test_seconds = elapsed_since(test_eval_started, device)
     final = {
         "best_epoch": checkpoint["epoch"],
+        "time_unit": "seconds",
         "validation": val_metrics,
         "test": test_metrics,
         "final_validation_seconds": round(final_val_seconds, 3),

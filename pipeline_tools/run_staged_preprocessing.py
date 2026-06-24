@@ -172,6 +172,7 @@ def process_sample(row, config):
         "Subject": row["Subject"],
         "Image Data ID": row["Image Data ID"],
         "Group": row["Group"],
+        "time_unit": "seconds",
         "status": "ok",
         "message": "",
         "selected_echo_time": "",
@@ -227,7 +228,7 @@ def format_stage_timings(result):
         "07_seconds",
     ]:
         if key in result and result[key] != "":
-            parts.append(f"{key[:2]}={result[key]}s")
+            parts.append(f"{key[:2]}={result[key]} sec")
     return ", ".join(parts) if parts else "all stages skipped"
 
 
@@ -261,7 +262,7 @@ def main():
             stage_timings = format_stage_timings(result)
             print(
                 f"[{index}/{len(rows)}] {result['sample_id']} - {result['status']} "
-                f"total={result['total_seconds']}s | {stage_timings}",
+                f"total={result['total_seconds']} sec | {stage_timings}",
                 flush=True,
             )
             fields = sorted({key for item in results for key in item})
