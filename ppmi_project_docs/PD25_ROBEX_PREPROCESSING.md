@@ -41,13 +41,19 @@ logs
 This runner does not bundle the PD25 template. ROBEX is called through `pyrobex`
 by default, so a separate ROBEX binary path is not required for the default run.
 
-Set these environment variables in WSL before running:
+The local default template path is:
 
-```bash
-export PD25_TEMPLATE=/mnt/e/ppmi_dti/templates/PD25-T1MPRAGE-1mm-brain.nii.gz
+```text
+E:\ppmi_dti\templates\pd25_20170213\PD25-T1MPRAGE-template-1mm.nii.gz
 ```
 
-Then run:
+You can override it in WSL if needed:
+
+```bash
+export PD25_TEMPLATE=/mnt/e/ppmi_dti/templates/pd25_20170213/PD25-fusion-template-1mm.nii.gz
+```
+
+Run:
 
 ```bash
 cd /mnt/e/ppmi_dti

@@ -14,7 +14,7 @@ export TEMP="$ANTS_TMP"
 export TMP="$ANTS_TMP"
 export ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=1
 
-: "${PD25_TEMPLATE:?Set PD25_TEMPLATE to the PD25 template NIfTI path.}"
+PD25_TEMPLATE="${PD25_TEMPLATE:-/mnt/e/ppmi_dti/templates/pd25_20170213/PD25-T1MPRAGE-template-1mm.nii.gz}"
 
 {
   echo "Started: $(date --iso-8601=seconds)"
