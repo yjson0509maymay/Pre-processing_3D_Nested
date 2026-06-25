@@ -26,9 +26,10 @@ STAGES = [
     ("01_raw_nifti", "DICOM converted to a reoriented 3D NIfTI volume."),
     ("02_robex", "ROBEX brain extraction output."),
     ("03_n4", "ANTs N4 bias-field corrected brain volume."),
-    ("04_pd25_syn", "antspyx SyN non-linear registration to a PD25 Parkinson template."),
-    ("05_minmax", "Non-zero brain voxels min-max normalized to [0, 1]."),
-    ("06_resized", "Final model-comparison input resized to 56 x 56 x 56 voxels."),
+    ("04_pd25_affine", "antspyx affine linear registration to a PD25 Parkinson template."),
+    ("05_pd25_syn", "antspyx SyN non-linear registration after affine alignment."),
+    ("06_minmax", "Non-zero brain voxels min-max normalized to [0, 1]."),
+    ("07_resized", "Final model-comparison input resized to 56 x 56 x 56 voxels."),
 ]
 
 
@@ -203,13 +204,13 @@ def run_robex(input_path, output_path, robex_mode, robex_command, seed=0):
     raise RuntimeError(f"Unsupported ROBEX mode: {robex_mode}")
 
 
-def run_pd25_antspyx_syn(input_path, output_path, pd25_template, transform_type="SyN"):
+def run_pd25_antspyx_registration(input_path, output_path, pd25_template, transform_type):
     require_file(pd25_template, "PD25 template")
     try:
         import ants
     except ImportError as exc:
         raise RuntimeError(
-            "antspyx is required for PD25 non-linear registration. "
+            "antspyx is required for PD25 registration. "
             "Install it with: pip install antspyx"
         ) from exc
 
@@ -263,8 +264,9 @@ def ensure_readmes(output_root):
     root.mkdir(parents=True, exist_ok=True)
     root_text = (
         "# PD25 ROBEX Parkinson-specialized preprocessing\n\n"
-        "Pipeline: DICOM -> ROBEX -> ANTs N4 -> antspyx SyN registration to a "
-        "PD25 Parkinson template -> min-max normalization -> 56x56x56 resize.\n\n"
+        "Pipeline: DICOM -> ROBEX -> ANTs N4 -> antspyx affine registration to a "
+        "PD25 Parkinson template -> antspyx SyN non-linear registration -> "
+        "min-max normalization -> 56x56x56 resize.\n\n"
         "This branch is intended for comparison with the MNI152/BET/z-score pipeline.\n"
     )
     (root / "README.md").write_text(root_text, encoding="utf-8")
@@ -293,6 +295,7 @@ def format_stage_timings(result):
         "04_seconds",
         "05_seconds",
         "06_seconds",
+        "07_seconds",
     ]:
         if key in result and result[key] != "":
             parts.append(f"{key[:2]}={result[key]} sec")
@@ -340,9 +343,10 @@ def process_sample(row, config):
         operations = [
             ("02_robex", run_robex, (paths["01_raw_nifti"], paths["02_robex"], config["robex_mode"], config["robex_command"], stable_numeric_seed(row["Image Data ID"]))),
             ("03_n4", preparing.run_n4_field_correction, (paths["02_robex"], paths["03_n4"])),
-            ("04_pd25_syn", run_pd25_antspyx_syn, (paths["03_n4"], paths["04_pd25_syn"], config["pd25_template"], config["transform_type"])),
-            ("05_minmax", normalize_minmax, (paths["04_pd25_syn"], paths["05_minmax"])),
-            ("06_resized", resize_nifti, (paths["05_minmax"], paths["06_resized"])),
+            ("04_pd25_affine", run_pd25_antspyx_registration, (paths["03_n4"], paths["04_pd25_affine"], config["pd25_template"], config["affine_transform_type"])),
+            ("05_pd25_syn", run_pd25_antspyx_registration, (paths["04_pd25_affine"], paths["05_pd25_syn"], config["pd25_template"], config["nonlinear_transform_type"])),
+            ("06_minmax", normalize_minmax, (paths["05_pd25_syn"], paths["06_minmax"])),
+            ("07_resized", resize_nifti, (paths["06_minmax"], paths["07_resized"])),
         ]
         for stage, function, arguments in operations:
             if config["overwrite"] or not os.path.exists(paths[stage]):
@@ -365,9 +369,11 @@ def parse_args():
     parser.add_argument("--robex-mode", choices=["pyrobex", "command"], default="pyrobex")
     parser.add_argument("--robex-command", default=os.environ.get("ROBEX_COMMAND", "runROBEX.sh"))
     parser.add_argument("--preparing-path", required=True)
-    parser.add_argument("--transform-type", default="SyN")
+    parser.add_argument("--affine-transform-type", default="Affine")
+    parser.add_argument("--nonlinear-transform-type", default="SyN")
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument("--log-name", default="preprocessing_log.csv")
     parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
@@ -381,6 +387,9 @@ def main():
     require_file(args.pd25_template, "PD25 template")
     if args.robex_mode == "command":
         require_command(args.robex_command)
+    log_dir = Path(args.output_root) / "logs"
+    log_path = log_dir / args.log_name
+    latest_log_path = log_dir / "preprocessing_log.csv"
 
     config = {
         "output_root": args.output_root,
@@ -388,7 +397,8 @@ def main():
         "robex_mode": args.robex_mode,
         "robex_command": args.robex_command,
         "preparing_path": args.preparing_path,
-        "transform_type": args.transform_type,
+        "affine_transform_type": args.affine_transform_type,
+        "nonlinear_transform_type": args.nonlinear_transform_type,
         "overwrite": args.overwrite,
     }
     results = []
@@ -403,7 +413,9 @@ def main():
                 flush=True,
             )
             fields = sorted({key for item in results for key in item})
-            write_rows(Path(args.output_root) / "logs" / "preprocessing_log.csv", results, fields)
+            write_rows(log_path, results, fields)
+            if log_path != latest_log_path:
+                write_rows(latest_log_path, results, fields)
 
     ok = sum(item["status"] == "ok" for item in results)
     failed = len(results) - ok

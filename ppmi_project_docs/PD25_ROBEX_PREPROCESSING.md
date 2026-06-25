@@ -6,7 +6,8 @@ This optional comparison pipeline creates a separate 303-subject preprocessing b
 DICOM
 -> ROBEX brain extraction
 -> ANTs N4 bias-field correction
--> antspyx SyN non-linear registration to a PD25 Parkinson template
+-> antspyx affine linear registration to a PD25 Parkinson template
+-> antspyx SyN non-linear registration after affine alignment
 -> min-max normalization
 -> 56x56x56 resize for model-input comparison
 ```
@@ -18,7 +19,7 @@ It is separate from the current MNI152/BET/z-score pipeline so both outputs can 
 Default output root:
 
 ```text
-E:\ppmi_dti\preprocessed\t2_pd25_robex_303
+E:\ppmi_dti\preprocessed\t2_pd25_robex_affine_syn_303
 ```
 
 Stages:
@@ -27,14 +28,15 @@ Stages:
 01_raw_nifti
 02_robex
 03_n4
-04_pd25_syn
-05_minmax
-06_resized
+04_pd25_affine
+05_pd25_syn
+06_minmax
+07_resized
 logs
 ```
 
-`05_minmax` preserves the PD25-space normalized volume before model resizing.  
-`06_resized` is the `56 x 56 x 56` model-comparison input.
+`06_minmax` preserves the PD25-space normalized volume before model resizing.  
+`07_resized` is the `56 x 56 x 56` model-comparison input.
 
 ## Required External Files
 
@@ -70,6 +72,8 @@ If you need to use a standalone ROBEX shell script instead of `pyrobex`, pass
 The runner prints per-sample total time and stage time in seconds, and writes:
 
 ```text
-E:\ppmi_dti\preprocessed\t2_pd25_robex_303\logs\preprocessing_log.csv
-E:\ppmi_dti\preprocessed\t2_pd25_robex_303\logs\full_run_console.log
+E:\ppmi_dti\preprocessed\t2_pd25_robex_affine_syn_303\logs\preprocessing_log.csv
+E:\ppmi_dti\preprocessed\t2_pd25_robex_affine_syn_303\logs\preprocessing_log_YYYYMMDD_HHMMSS.csv
+E:\ppmi_dti\preprocessed\t2_pd25_robex_affine_syn_303\logs\full_run_console_latest.log
+E:\ppmi_dti\preprocessed\t2_pd25_robex_affine_syn_303\logs\full_run_console_YYYYMMDD_HHMMSS.log
 ```
